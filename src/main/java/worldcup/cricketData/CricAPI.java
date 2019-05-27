@@ -27,8 +27,8 @@ public class CricAPI implements CricketInfo {
     }
 
     @Override
-    public Object getSquad() {
-        URL squadFetchUrl = matchURLService.getSquadFetchURL();
+    public Object getSquadsDetail(String matchId) {
+        URL squadFetchUrl = matchURLService.getSquadFetchURL(matchId);
         LOGGER.info("squadFetchUrl === " + squadFetchUrl);
         return callCricAPI(squadFetchUrl);
     }

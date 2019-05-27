@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class DailyStats {
+public class PlayerDailyStats {
 
     @Id
     private Long id;
@@ -12,7 +12,7 @@ public class DailyStats {
     @JoinColumn(name = "PLAYER_ID")
     private Player player;
     private int run;
-    private int ball;
+    private int ballFaced;
     private int six;
     private int four;
     private double strikeRate;
@@ -48,12 +48,12 @@ public class DailyStats {
         this.run = run;
     }
 
-    public int getBall() {
-        return ball;
+    public int getBallFaced() {
+        return ballFaced;
     }
 
-    public void setBall(int ball) {
-        this.ball = ball;
+    public void setBallFaced(int ballFaced) {
+        this.ballFaced = ballFaced;
     }
 
     public int getSix() {

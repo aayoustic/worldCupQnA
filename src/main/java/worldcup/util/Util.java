@@ -5,6 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;
 
@@ -52,5 +54,14 @@ public class Util {
             sb.append((char) cp);
         }
         return sb.toString();
+    }
+
+    public static URL prepareURL(String url){
+        try {
+            return new URL(url);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 }

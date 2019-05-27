@@ -4,5 +4,5 @@ public interface CricketInfo<T> {
 
     T getMatchSummary();
 
-    T getSquad();
+    T getSquadsDetail(String matchID);
 }

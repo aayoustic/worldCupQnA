@@ -11,4 +11,10 @@ public class WorldCupConstant {
     public static final String API_KEY_PARAM = "apikey";
     public static final String MATCH_UNIQUE_ID_PARAM = "unique_id";
 
+    /**/
+    public static final String NAME_KEY = "name";
+    public static final String PLAYERS_KEY = "players";
+    public static final String PLAYER_ID_KEY = "pid";
+    public static final String SQUAD_KEY = "squad";
+
 }

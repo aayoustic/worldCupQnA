@@ -5,7 +5,6 @@ import worldcup.constant.WorldCupConstant;
 import worldcup.util.Util;
 import worldcup.util.WorldCupPropertyUtil;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,27 +21,17 @@ public class MatchURLService {
         params.put(WorldCupConstant.API_KEY_PARAM, apiKey);
         params.put(WorldCupConstant.MATCH_UNIQUE_ID_PARAM, matchUniqueKey);
         Util.appendURLParam(summaryAPIUrl, params);
-        return prepareURL(summaryAPIUrl.toString());
+        return Util.prepareURL(summaryAPIUrl.toString());
     }
 
-    public URL getSquadFetchURL(){
+    public URL getSquadFetchURL(String matchId){
         StringBuilder squadAPIUrl = new StringBuilder(
                 WorldCupPropertyUtil.getInstance().getProperty(WorldCupConstant.SQUAD_API_URL_PROPERTY));
         Map<String, String> params = new HashMap<>();
         String apiKey = WorldCupPropertyUtil.getInstance().getProperty(WorldCupConstant.API_KEY_PROPERTY);
-        String matchUniqueKey = WorldCupPropertyUtil.getInstance().getProperty(WorldCupConstant.API_KEY_PROPERTY);
         params.put(WorldCupConstant.API_KEY_PARAM, apiKey);
-        params.put(WorldCupConstant.MATCH_UNIQUE_ID_PARAM, matchUniqueKey);
+        params.put(WorldCupConstant.MATCH_UNIQUE_ID_PARAM, matchId);
         Util.appendURLParam(squadAPIUrl, params);
-        return prepareURL(squadAPIUrl.toString());
-    }
-
-    private URL prepareURL(String url){
-        try {
-            return new URL(url);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        return Util.prepareURL(squadAPIUrl.toString());
     }
 }
