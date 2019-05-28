@@ -1,6 +1,5 @@
 package worldcup.controller;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +16,9 @@ public class WorldCupController {
     private DailyStatsDataService dailyStatsDataService;
 
     @ResponseBody
-    @GetMapping("/calculatePoints")
-    public String pointCalculation(){
-        dailyStatsDataService.calculatePlayerStats();
+    @GetMapping("/addDailyStats")
+    public String addDailyStats(@RequestParam String matchId){
+        dailyStatsDataService.addDailyStats(matchId);
         return "OK";
     }
 

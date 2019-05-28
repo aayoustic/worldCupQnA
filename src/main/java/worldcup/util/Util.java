@@ -1,6 +1,11 @@
 package worldcup.util;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -8,16 +13,20 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
 import java.util.Map;
 
+@Service
 public class Util {
-    public static void appendURLParam(StringBuilder url, Map<String, String> params) {
+    @Autowired private ObjectMapper objectMapper;
+
+    public void appendURLParam(StringBuilder url, Map<String, String> params) {
         for (String key : params.keySet()) {
             appendURLParam(url, key, params.get(key));
         }
     }
 
-    public static void appendURLParam(StringBuilder url, String param, String value) {
+    public void appendURLParam(StringBuilder url, String param, String value) {
         if (!isURLParamAlreadyPresent(url.toString(), param, value)) {
             prepareURLForAppend(url);
             url.append(param);
@@ -31,7 +40,7 @@ public class Util {
         }
     }
 
-    public static boolean isURLParamAlreadyPresent(String url, String param, String value) {
+    public boolean isURLParamAlreadyPresent(String url, String param, String value) {
         String paramValue = param + "=" + value;
         if (url.contains("&" + paramValue) || url.contains("?" + paramValue)) {
             return true;
@@ -39,7 +48,7 @@ public class Util {
         return false;
     }
 
-    public static void prepareURLForAppend(StringBuilder url) {
+    public void prepareURLForAppend(StringBuilder url) {
         if (url.indexOf("?") == -1) {
             url.append("?");
         } else if (url.charAt(url.length() - 1) != '&') {
@@ -47,7 +56,7 @@ public class Util {
         }
     }
 
-    public static String readAllFromReader(Reader rd) throws IOException {
+    public String readAllFromReader(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();
         int cp;
         while ((cp = rd.read()) != -1) {
@@ -56,7 +65,7 @@ public class Util {
         return sb.toString();
     }
 
-    public static URL prepareURL(String url){
+    public URL prepareURL(String url){
         try {
             return new URL(url);
         } catch (MalformedURLException e) {
@@ -64,4 +73,23 @@ public class Util {
             throw new RuntimeException(e);
         }
     }
+
+    public double roundOffToTwoPlaces(double value){
+        DecimalFormat pattern = new DecimalFormat("#.##");
+        return Double.parseDouble(pattern.format(value));
+    }
+
+    public <T> T getModelFromJson(JSONObject jsonObject, Class<T> modelClass) {
+        return getModelFromJson(jsonObject.toString(), modelClass);
+    }
+
+    public <T> T getModelFromJson(String jsonString, Class<T> modelClass) {
+        try {
+            return (T) objectMapper.readValue(jsonString, modelClass);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
 }

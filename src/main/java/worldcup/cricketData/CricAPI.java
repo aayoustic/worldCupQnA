@@ -14,26 +14,33 @@ import java.util.logging.Logger;
 
 @Service
 public class CricAPI implements CricketInfo {
+
+    @Autowired private Util util;
     private static final Logger LOGGER = Logger.getLogger(CricAPI.class.getName());
 
     @Autowired
-    MatchURLService matchURLService;
+    private MatchURLService matchURLService;
 
     @Override
-    public JSONObject getMatchSummary(){
-        URL summaryUrl = matchURLService.getMatchSummaryURL();
-        LOGGER.info("summaryUrl === " + summaryUrl);
-        return callCricAPI(summaryUrl);
+    public JSONObject getMatchSummary(String matchId){
+        URL summaryUrl = matchURLService.getMatchSummaryURL(matchId);
+        return callAPI(summaryUrl);
     }
 
     @Override
-    public Object getSquadsDetail(String matchId) {
+    public JSONObject getSquadsDetail(String matchId) {
         URL squadFetchUrl = matchURLService.getSquadFetchURL(matchId);
-        LOGGER.info("squadFetchUrl === " + squadFetchUrl);
-        return callCricAPI(squadFetchUrl);
+        return callAPI(squadFetchUrl);
     }
 
-    private JSONObject callCricAPI(URL url){
+
+    @Override
+    public JSONObject getPlayerDetail(String playerId) {
+        URL playerDetailUrl = matchURLService.getPlayerDetailsURL(playerId);
+        return callAPI(playerDetailUrl);
+    }
+
+    public JSONObject callAPI(URL url){
         try {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             int responseCode = connection.getResponseCode();
@@ -41,7 +48,7 @@ public class CricAPI implements CricketInfo {
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 InputStream is = connection.getInputStream();
                 BufferedReader br = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-                String jsonString = Util.readAllFromReader(br);
+                String jsonString = util.readAllFromReader(br);
                 return new JSONObject(jsonString);
             } else {
                 LOGGER.severe("Response Code - " + connection.getResponseCode());

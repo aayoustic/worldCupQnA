@@ -1,5 +1,7 @@
 package worldcup.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -7,9 +9,14 @@ import javax.persistence.Id;
 public class Player {
 
     @Id
+    @JsonAlias("pid")
     private Long id;
+    @JsonAlias("name")
     private String name;
+    @JsonAlias("country")
     private String team;
+
+    protected Player(){}
 
     public Long getId() {
         return id;
