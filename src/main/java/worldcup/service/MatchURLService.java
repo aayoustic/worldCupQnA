@@ -47,4 +47,15 @@ public class MatchURLService {
         util.appendURLParam(squadAPIUrl, params);
         return util.prepareURL(squadAPIUrl.toString());
     }
+
+    public URL getCricketScoreURL(String matchId){
+        StringBuilder cricketScoreUrl = new StringBuilder(
+                WorldCupPropertyUtil.getInstance().getProperty(WorldCupConstant.CRICKET_SCORE_URL_PROPERTY));
+        Map<String, String> params = new HashMap<>();
+        String apiKey = WorldCupPropertyUtil.getInstance().getProperty(WorldCupConstant.API_KEY_PROPERTY);
+        params.put(WorldCupConstant.API_KEY_PARAM, apiKey);
+        params.put(WorldCupConstant.MATCH_UNIQUE_ID_PARAM, matchId);
+        util.appendURLParam(cricketScoreUrl, params);
+        return util.prepareURL(cricketScoreUrl.toString());
+    }
 }

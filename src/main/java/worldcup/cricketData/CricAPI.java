@@ -40,6 +40,13 @@ public class CricAPI implements CricketInfo {
         return callAPI(playerDetailUrl);
     }
 
+    @Override
+    public JSONObject getCricketScore(String matchId) {
+        URL cricketScoreUrl = matchURLService.getCricketScoreURL(matchId);
+        return callAPI(cricketScoreUrl);
+    }
+
+    @Override
     public JSONObject callAPI(URL url){
         try {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();

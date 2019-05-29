@@ -7,15 +7,14 @@ import org.springframework.stereotype.Service;
 import worldcup.constant.WorldCupConstant;
 import worldcup.cricketData.CricketInfo;
 import worldcup.dao.*;
-import worldcup.model.*;
+import worldcup.model.Match;
+import worldcup.model.Player;
 import worldcup.util.Util;
 
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @Service
 public class DailyStatsDataService {
-    private static final Logger LOGGER = Logger.getLogger(DailyStatsDataService.class.getName());
 
     @Autowired private StatsService statsService;
     @Autowired private Util util;
@@ -31,10 +30,10 @@ public class DailyStatsDataService {
     public void addDailyStats(String matchId){
         JSONObject matchSummary = cricketInfo.getMatchSummary(matchId);
         JSONObject data = matchSummary.getJSONObject(WorldCupConstant.DATA_KEY);
+        Match match = statsService.loadMatch(data, matchId);
         JSONArray battingData = data.getJSONArray(WorldCupConstant.BATTING_KEY);
         JSONArray bowlingData = data.getJSONArray(WorldCupConstant.BOWLING_KEY);
         JSONArray fieldingData = data.getJSONArray(WorldCupConstant.FIELDING_KEY);
-        Match match = statsService.loadMatch(data, matchId);
         calculateAndUpdatePlayerStats(battingData, match);
         calculateAndUpdatePlayerStats(bowlingData, match);
         calculateAndUpdatePlayerStats(fieldingData, match);
@@ -48,13 +47,10 @@ public class DailyStatsDataService {
     }
 
     private void loadPlayers(JSONObject squad){
-        String team = squad.getString(WorldCupConstant.NAME_KEY);
         JSONArray players = squad.getJSONArray(WorldCupConstant.PLAYERS_KEY);
         for (int i = 0; i < players.length(); i++) {
-            JSONObject playerJSON = players.getJSONObject(i);
-            Player player = util.getModelFromJson(playerJSON, Player.class);
-            player.setTeam(team);
-            playerRepository.save(player);
+            Long playerId = players.getJSONObject(i).getLong(WorldCupConstant.PLAYER_ID_KEY);
+            statsService.loadPlayer(playerId);
         }
     }
 

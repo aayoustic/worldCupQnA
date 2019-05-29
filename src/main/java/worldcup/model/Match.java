@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
 
 @Entity
 @Table(name = "`MATCH`")
@@ -19,6 +18,10 @@ public class Match {
     private String tossWinner;
     @JsonAlias("winner_team")
     private String matchWinner;
+    private int teamOneRuns;
+    private int teamTwoRuns;
+    private int teamOneWickets;
+    private int teamTwoWickets;
 
     protected Match(){}
 
@@ -66,5 +69,37 @@ public class Match {
 
     public void setMatchWinner(String matchWinner) {
         this.matchWinner = matchWinner;
+    }
+
+    public int getTeamOneRuns() {
+        return teamOneRuns;
+    }
+
+    public void setTeamOneRuns(int teamOneRuns) {
+        this.teamOneRuns = teamOneRuns;
+    }
+
+    public int getTeamTwoRuns() {
+        return teamTwoRuns;
+    }
+
+    public void setTeamTwoRuns(int teamTwoRuns) {
+        this.teamTwoRuns = teamTwoRuns;
+    }
+
+    public int getTeamOneWickets() {
+        return teamOneWickets;
+    }
+
+    public void setTeamOneWickets(int teamOneWickets) {
+        this.teamOneWickets = teamOneWickets;
+    }
+
+    public int getTeamTwoWickets() {
+        return teamTwoWickets;
+    }
+
+    public void setTeamTwoWickets(int teamTwoWickets) {
+        this.teamTwoWickets = teamTwoWickets;
     }
 }

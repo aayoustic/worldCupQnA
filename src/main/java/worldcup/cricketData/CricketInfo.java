@@ -10,5 +10,7 @@ public interface CricketInfo<T> {
 
     T getPlayerDetail(String playerId);
 
+    T getCricketScore(String matchId);
+
     T callAPI(URL url);
 }
