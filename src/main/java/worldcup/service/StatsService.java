@@ -54,6 +54,8 @@ public class StatsService {
 
     public void loadBowlingStats(JSONObject playerJSON, Match match, Player player){
         BowlingStats bowlingStats = util.getModelFromJson(playerJSON, BowlingStats.class);
+        double economyRate = Double.parseDouble(playerJSON.getString(WorldCupConstant.ECONOMY_KEY));
+        bowlingStats.setEconomyRate(economyRate);
         setMatchAndPlayer(bowlingStats, match, player);
         bowlingStatsRepository.save(bowlingStats);
     }
@@ -73,7 +75,6 @@ public class StatsService {
     }
 
     private void calculateTeamScores(Match match) {
-        LOGGER.info("========== Aayush =============");
         JSONObject cricketScoreText = cricketInfo.getCricketScore(match.getId().toString());
         String entireScore = cricketScoreText.getString(WorldCupConstant.SCORE_KEY);
         String teamOne = cricketScoreText.getString(WorldCupConstant.TEAM_ONE_KEY);

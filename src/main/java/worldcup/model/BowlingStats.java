@@ -24,10 +24,10 @@ public class BowlingStats implements Stats {
     private String runs;
     @JsonAlias("W")
     private String wickets;
-    @JsonAlias("Econ")
-    private String economyRate;
+    private double economyRate;
     @JsonAlias("0s")
     private int dots;
+    private boolean fiveWicketHaul;
 
     @Override
     public Long getId() {
@@ -89,13 +89,16 @@ public class BowlingStats implements Stats {
 
     public void setWickets(String wickets) {
         this.wickets = wickets;
+        if(Integer.parseInt(wickets) >= 5){
+            setFiveWicketHaul(true);
+        }
     }
 
-    public String getEconomyRate() {
+    public double getEconomyRate() {
         return economyRate;
     }
 
-    public void setEconomyRate(String economyRate) {
+    public void setEconomyRate(double economyRate) {
         this.economyRate = economyRate;
     }
 
@@ -105,5 +108,13 @@ public class BowlingStats implements Stats {
 
     public void setDots(int dots) {
         this.dots = dots;
+    }
+
+    public boolean isFiveWicketHaul() {
+        return fiveWicketHaul;
+    }
+
+    public void setFiveWicketHaul(boolean fiveWicketHaul) {
+        this.fiveWicketHaul = fiveWicketHaul;
     }
 }

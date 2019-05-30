@@ -12,7 +12,8 @@ import worldcup.model.BowlingStats;
 import worldcup.model.Match;
 import worldcup.model.PredictionPoints;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class PredictionService {
@@ -25,9 +26,13 @@ public class PredictionService {
                                         ParticipantService.ROULETTE_TYPE rouletteType,
                                         String[] predictions,
                                         Match match) {
+        List<BattingStats> battingStats = battingStatsRepository.findByMatch(match);
+        List<BowlingStats> bowlingStats = bowlingStatsRepository.findByMatch(match);
+        List<Integer> battingRuns = new ArrayList<>();
+        battingStats.forEach(battingStat -> battingRuns.add(battingStat.getRuns()));
+        List<Integer> bowlingRuns = new ArrayList<>();
+        bowlingStats.forEach(bowlingStat -> bowlingRuns.add(Integer.parseInt(bowlingStat.getRuns())));
         int correctCount = 0;
-        Optional<BattingStats> battingStats;
-        Optional<BowlingStats> bowlingStats;
         for (String prediction : predictions) {
             String[] bounds;
             int upperBound = 0, lowerBound = 0;
@@ -39,15 +44,16 @@ public class PredictionService {
                 bounds = prediction.split(WorldCupConstant.GREATER_THAN);
                 lowerBound = Integer.parseInt(bounds[1]);
                 upperBound = 10000;
+            } else if(prediction.contains(WorldCupConstant.LESS_THAN)){
+                bounds = prediction.split(WorldCupConstant.LESS_THAN);
+                upperBound = Integer.parseInt(bounds[1]);
             }
             if(ParticipantService.ROULETTE_TYPE.BATTING == rouletteType) {
-                if(battingStatsRepository.
-                        existsByMatchAndRunsGreaterThanEqualAndRunsLessThanEqual(match, lowerBound, upperBound)){
+                if(isRoulettePredictionCorrect(battingRuns, lowerBound, upperBound)) {
                     correctCount++;
                 }
             } else if(ParticipantService.ROULETTE_TYPE.BOWLING == rouletteType) {
-                if(bowlingStatsRepository.
-                        existsByMatchAndRunsGreaterThanEqualAndRunsLessThanEqual(match, lowerBound, upperBound)){
+                if(isRoulettePredictionCorrect(bowlingRuns, lowerBound, upperBound)) {
                     correctCount++;
                 }
             }
@@ -105,5 +111,21 @@ public class PredictionService {
             points = 20;
         }
         return points;
+    }
+
+    private boolean isRoulettePredictionCorrect(List<Integer> runs, int lowerBound, int upperBound) {
+        boolean result = false;
+        int index = -1;
+        for (Integer battingRun : runs) {
+            if(lowerBound <= battingRun && battingRun <= upperBound) {
+                result = true;
+                index = runs.indexOf(battingRun);
+                break;
+            }
+        }
+        if(index != -1) {
+            runs.set(index, -1);
+        }
+        return result;
     }
 }

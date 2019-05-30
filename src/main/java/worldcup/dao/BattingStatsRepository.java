@@ -5,12 +5,12 @@ import worldcup.model.BattingStats;
 import worldcup.model.Match;
 import worldcup.model.Player;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface BattingStatsRepository extends CrudRepository<BattingStats, Long> {
 
-    boolean existsByMatchAndRunsGreaterThanEqualAndRunsLessThanEqual(
-            Match match, int lowerBound, int upperBound);
+    List<BattingStats> findByMatch(Match match);
 
     Optional<BattingStats> findByMatchAndPlayer(Match match, Player player);
 }

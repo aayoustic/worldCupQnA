@@ -1,5 +1,6 @@
 package worldcup.service;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,8 +34,7 @@ public class ParticipantService {
         BATTING, BOWLING
     }
 
-    private static final String INPUT_PREDICTION_FILE_NAME = "input/Match1.csv";
-    private static final String POINTS_OUTPUT_FILE_NAME = "Output/Day.csv";
+    private static final String INPUT_PREDICTION_FILE_NAME = "input/Match1-ENGvSA.csv";
 
     @Autowired
     private ParticipantRepository participantRepository;
@@ -56,6 +56,10 @@ public class ParticipantService {
     private ParticipantFieldingStatsRepository participantFieldingStatsRepository;
     @Autowired
     private PredictionPointsRepository predictionPointsRepository;
+    @Autowired
+    private TeamStatsRepository teamStatsRepository;
+    @Autowired
+    private TeamStatsPointRepository teamStatsPointRepository;
 
     @Autowired
     private PredictionService predictionService;
@@ -110,10 +114,13 @@ public class ParticipantService {
                     predictionPointsRepository.save(predictionPoints);
 
                     String[] battingChoice = Arrays.copyOfRange(row, BATTING_CHOICE_COLUMN_START, BATTING_CHOICE_COLUMN_END);
-                    calculateBattingStats(battingChoice, participant, match);
-                    String[] bowlingChoice = Arrays.copyOfRange(row, BOWLING_CHOICE_COLUMN_START, BOWLING_CHOICE_COLUMN_END);
-                    calculateBowlingStats(bowlingChoice, participant, match);
+                    calculateOwnBattingStats(battingChoice[0], participant, match);
 
+                    String[] bowlingChoice = Arrays.copyOfRange(row, BOWLING_CHOICE_COLUMN_START, BOWLING_CHOICE_COLUMN_END);
+                    calculateOwnBowlingStats(bowlingChoice[0], participant, match);
+
+                    String[] players = ArrayUtils.addAll(bowlingChoice, battingChoice);
+                    calculateTeamStats(players, participant, match);
                 }
             }
         } catch (IOException e) {
@@ -121,58 +128,93 @@ public class ParticipantService {
         }
     }
 
-    private void calculateBattingStats(String[] choice, Participant participant, Match match){
-        Optional<Player> playerOptional1 = playerRepository.findByName(choice[0]);
-        if(playerOptional1.isPresent()) {
-            ParticipantBattingStats participantBattingStats = new ParticipantBattingStats();
-            Player meAsPlayer = playerOptional1.get();
-            participantBattingStats.setParticipant(participant);
-            participantBattingStats.setMatch(match);
-            Optional<BattingStats> battingStats = battingStatsRepository.findByMatchAndPlayer(match, meAsPlayer);
-            if(battingStats.isPresent()){
-                participantBattingStats.setBattingStats(battingStats.get());
-            } else{ throw new RuntimeException("==========> BattingStats not found for playerId - " + meAsPlayer.getId()); }
-            participantBattingStatsRepository.save(participantBattingStats);
-            addFieldingStats(participant, match, meAsPlayer);
-        } else {
-            throw new RuntimeException("==========> Player not found for name - " + choice[0]);
-        }
-        //Team stats
-        for (String name : choice) {
-
+    private void calculateTeamStats(String[] choices, Participant participant, Match match) {
+        for (String choice : choices) {
+            Optional<Player> player = playerRepository.findByName(choice);
+            if(player.isPresent()) {
+                TeamStats teamStats = new TeamStats();
+                teamStats.setMatch(match);
+                teamStats.setParticipant(participant);
+                teamStats.setPlayer(player.get());
+                teamStatsRepository.save(teamStats);
+            } else {
+                throw new RuntimeException("==========> Player not found for name - " + choice);
+            }
         }
     }
 
-    private void calculateBowlingStats(String[] choice, Participant participant, Match match){
-        Optional<Player> playerOptional1 = playerRepository.findByName(choice[0]);
+    private void calculateOwnBattingStats(String choice, Participant participant, Match match){
+        Optional<Player> playerOptional1 = playerRepository.findByName(choice);
         if(playerOptional1.isPresent()) {
-            ParticipantBowlingStats participantBowlingStats = new ParticipantBowlingStats();
             Player meAsPlayer = playerOptional1.get();
-            participantBowlingStats.setParticipant(participant);
-            participantBowlingStats.setMatch(match);
-            Optional<BowlingStats> bowlingStats = bowlingStatsRepository.findByMatchAndPlayer(match, meAsPlayer);
-            if(bowlingStats.isPresent()){
-                participantBowlingStats.setBowlingStats(bowlingStats.get());
-            } else{ throw new RuntimeException("==========> BattingStats not found for playerId - " + meAsPlayer.getId()); }
-            participantBowlingStatsRepository.save(participantBowlingStats);
+            Optional<BattingStats> battingStats = battingStatsRepository.findByMatchAndPlayer(match, meAsPlayer);
+            if(battingStats.isPresent()){
+                ParticipantBattingStats participantBattingStats = new ParticipantBattingStats();
+                participantBattingStats.setParticipant(participant);
+                participantBattingStats.setMatch(match);
+                participantBattingStats.setBattingStats(battingStats.get());
+                participantBattingStatsRepository.save(participantBattingStats);
+            }
             addFieldingStats(participant, match, meAsPlayer);
         } else {
-            throw new RuntimeException("==========> Player not found for name - " + choice[0]);
+            throw new RuntimeException("==========> Player not found for name - " + choice);
         }
-        //Team stats
-        for (String name : choice) {
+    }
 
+    private void calculateOwnBowlingStats(String choice, Participant participant, Match match){
+        Optional<Player> playerOptional1 = playerRepository.findByName(choice);
+        if(playerOptional1.isPresent()) {
+            Player meAsPlayer = playerOptional1.get();
+            Optional<BowlingStats> bowlingStats = bowlingStatsRepository.findByMatchAndPlayer(match, meAsPlayer);
+            if(bowlingStats.isPresent()){
+                ParticipantBowlingStats participantBowlingStats = new ParticipantBowlingStats();
+                participantBowlingStats.setParticipant(participant);
+                participantBowlingStats.setMatch(match);
+                participantBowlingStats.setBowlingStats(bowlingStats.get());
+                participantBowlingStatsRepository.save(participantBowlingStats);
+            }
+            addFieldingStats(participant, match, meAsPlayer);
+        } else {
+            throw new RuntimeException("==========> Player not found for name - " + choice);
         }
     }
 
     private void addFieldingStats(Participant participant, Match match, Player player){
-        ParticipantFieldingStats participantFieldingStats = new ParticipantFieldingStats();
-        participantFieldingStats.setMatch(match);
-        participantFieldingStats.setParticipant(participant);
         Optional<FieldingStats> fieldingStats = fieldingStatsRepository.findByMatchAndPlayer(match, player);
         if(fieldingStats.isPresent()){
+            ParticipantFieldingStats participantFieldingStats = new ParticipantFieldingStats();
+            participantFieldingStats.setParticipant(participant);
+            participantFieldingStats.setMatch(match);
             participantFieldingStats.setFieldingStats(fieldingStats.get());
-        }else{ throw new RuntimeException("==========> FieldingStats not found for playerId - " + player.getId()); }
-        participantFieldingStatsRepository.save(participantFieldingStats);
+            participantFieldingStatsRepository.save(participantFieldingStats);
+        }
+    }
+
+    public void calculateTeamPoints(Long matchId) {
+        List<Object[]> teamStats = teamStatsRepository.findTeamStats(matchId);
+        for (Object[] teamStat : teamStats) {
+            int columnCount = 0;
+            Long participantId = Long.parseLong(teamStat[columnCount++].toString());
+            Optional<Participant> participant = participantRepository.findById(participantId);
+            Optional<Match> match = matchRepository.findById(matchId);
+            if(participant.isPresent() && match.isPresent()){
+                TeamStatsPoints teamStatsPoints = new TeamStatsPoints();
+                teamStatsPoints.setParticipant(participant.get());
+                teamStatsPoints.setMatch(match.get());
+                teamStatsPoints.setRunsPoint(Long.parseLong(teamStat[columnCount++].toString()));
+                teamStatsPoints.setFoursPoint(Long.parseLong(teamStat[columnCount++].toString()) * 2);
+                teamStatsPoints.setSixesPoint(Long.parseLong(teamStat[columnCount++].toString()) * 3);
+                teamStatsPoints.setFiftiesPoint(Long.parseLong(teamStat[columnCount++].toString()) * 5);
+                teamStatsPoints.setCenturiesPoint(Long.parseLong(teamStat[columnCount++].toString()) * 10);
+                teamStatsPoints.setWicketPoint(Long.parseLong(teamStat[columnCount++].toString()) * 24);
+                teamStatsPoints.setMaidensPoint(Long.parseLong(teamStat[columnCount++].toString()) * 3);
+                teamStatsPoints.setFiveWicketHaulPoint(Long.parseLong(teamStat[columnCount++].toString()) * 10);
+                teamStatsPoints.setCatchesPoint(Long.parseLong(teamStat[columnCount++].toString()) * 4);
+                teamStatsPoints.setStumpingsPoint(Long.parseLong(teamStat[columnCount].toString()) * 4);
+                teamStatsPointRepository.save(teamStatsPoints);
+            } else{
+                throw new RuntimeException("Match " + matchId + " or Participant " + participantId + " doesn't exist.");
+            }
+        }
     }
 }

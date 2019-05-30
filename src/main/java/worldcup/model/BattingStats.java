@@ -26,6 +26,8 @@ public class BattingStats implements Stats {
     private int fours;
     private double strikeRate;
     private boolean notOut;
+    private boolean fifty;
+    private boolean century;
 
     @Override
     public Long getId() {
@@ -63,6 +65,11 @@ public class BattingStats implements Stats {
 
     public void setRuns(int runs) {
         this.runs = runs;
+        if(runs >= 100){
+            setCentury(true);
+        } else if(runs >= 50){
+            setFifty(true);
+        }
     }
 
     public int getBalls() {
@@ -103,5 +110,21 @@ public class BattingStats implements Stats {
 
     public void setNotOut(boolean notOut) {
         this.notOut = notOut;
+    }
+
+    public boolean isFifty() {
+        return fifty;
+    }
+
+    public void setFifty(boolean fifty) {
+        this.fifty = fifty;
+    }
+
+    public boolean isCentury() {
+        return century;
+    }
+
+    public void setCentury(boolean century) {
+        this.century = century;
     }
 }

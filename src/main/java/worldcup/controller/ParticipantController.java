@@ -19,5 +19,13 @@ public class ParticipantController {
         return "OK";
     }
 
+    @GetMapping("/calculateTeamPoints")
+    public String calculateTeamPoints(@RequestParam Long matchId){
+        participantService.calculateTeamPoints(matchId);
+        return "OK";
+    }
+
+
+
 
 }
