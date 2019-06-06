@@ -7,10 +7,18 @@ import worldcup.model.TeamStats;
 import java.util.List;
 
 public interface TeamStatsRepository extends CrudRepository<TeamStats, Long> {
-    @Query(value = "SELECT p.ID, SUM(ba.RUNS) AS Runs, SUM(ba.FOURS) AS Fours, SUM(ba.SIXES) AS Sixes," +
-            " SUM(ba.FIFTY) AS Fifties, SUM(ba.CENTURY) AS Century," +
-            " SUM(bo.WICKETS) AS Wickets, SUM(bo.MAIDENS) AS Maidens, SUM(bo.FIVE_WICKET_HAUL) AS FiveWicketHaul," +
-            " SUM(fi.CATCHES) AS Catches, SUM(fi.STUMPINGS) AS Stumpings" +
+    @Query(value = "SELECT p.ID, " +
+            " COALESCE(SUM(ba.RUNS),0) AS Runs, " +
+            " COALESCE(SUM(ba.FOURS),0) AS Fours, " +
+            " COALESCE(SUM(ba.SIXES),0) AS Sixes," +
+            " COALESCE(SUM(ba.FIFTY),0) AS Fifties, " +
+            " COALESCE(SUM(ba.CENTURY),0) AS Century," +
+            " COALESCE(SUM(bo.WICKETS),0) AS Wickets, " +
+            " COALESCE(SUM(bo.MAIDENS),0) AS Maidens, " +
+            " COALESCE(SUM(bo.FOUR_WICKET_HAUL),0) AS FourWicketHaul," +
+            " COALESCE(SUM(bo.FIVE_WICKET_HAUL),0) AS FiveWicketHaul," +
+            " COALESCE(SUM(fi.CATCHES),0) AS Catches, " +
+            " COALESCE(SUM(fi.STUMPINGS),0) AS Stumpings" +
             " FROM participant p" +
             " LEFT JOIN team_stats ts ON p.ID = ts.PARTICIPANT_ID" +
             " LEFT JOIN player pl ON pl.ID = ts.PLAYER_ID" +

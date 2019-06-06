@@ -22,8 +22,7 @@ public class PredictionService {
     @Autowired private BattingStatsRepository battingStatsRepository;
     @Autowired private BowlingStatsRepository bowlingStatsRepository;
 
-    public void calculateRoulettePoints(PredictionPoints predictionPoints,
-                                        ParticipantService.ROULETTE_TYPE rouletteType,
+    public int calculateRoulettePoints(ParticipantService.ROULETTE_TYPE rouletteType,
                                         String[] predictions,
                                         Match match) {
         List<BattingStats> battingStats = battingStatsRepository.findByMatch(match);
@@ -58,11 +57,11 @@ public class PredictionService {
                 }
             }
         }
-        predictionPoints.setRoulettePoints(calculateRoulettePoints(correctCount));
+        return calculateRoulettePoints(correctCount);
     }
 
     public boolean isRunRangeCorrect(String prediction, Match match){
-        int totalScore = match.getTeamOneRuns() + match.getTeamTwoRuns();
+        int avgScore = (match.getTeamOneRuns() + match.getTeamTwoRuns())/2;
         int lowerBound = 0, upperBound = 0;
         String[] predictedScore;
         if (prediction.contains(WorldCupConstant.HYPHEN)) {
@@ -77,7 +76,7 @@ public class PredictionService {
             lowerBound = Integer.parseInt(predictedScore[1]);
             upperBound = 1000;
         }
-        return lowerBound <= totalScore && totalScore <= upperBound;
+        return lowerBound <= avgScore && avgScore <= upperBound;
     }
 
     public boolean isWicketRangeCorrect(String prediction, Match match) {

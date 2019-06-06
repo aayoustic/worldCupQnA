@@ -47,8 +47,12 @@ public class StatsService {
         } else {
             battingStats.setNotOut(false);
         }
-        double strikeRate = (battingStats.getRuns() * 100) / (double) battingStats.getBalls();
-        battingStats.setStrikeRate(util.roundOffToTwoPlaces(strikeRate));
+        double strikeRate = 0;
+        if(battingStats.getBalls() > 0) {
+            strikeRate = (battingStats.getRuns() * 100) / (double) battingStats.getBalls();
+            strikeRate = util.roundOffToTwoPlaces(strikeRate);
+        }
+        battingStats.setStrikeRate(strikeRate);
         battingStatsRepository.save(battingStats);
     }
 

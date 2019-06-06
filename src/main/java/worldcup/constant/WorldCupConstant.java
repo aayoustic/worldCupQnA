@@ -3,7 +3,6 @@ package worldcup.constant;
 public class WorldCupConstant {
 
     public static final String NOT_OUT = "not out";
-    public static final String CSV_PATH = "src/main/resources/CSV/";
     public static final String DATE_PATTERN_DD_MM_YYYY_HH_MM_SS = "dd/MM/yyyy HH:mm:ss";
     public static final String COMMA_DELIMITER = ",";
     public static final String SPACE = " ";
@@ -22,13 +21,14 @@ public class WorldCupConstant {
     public static final String CRICKET_SCORE_URL_PROPERTY = "cric-api-cricket-score-url";
 
     public static final String POINT_BOOSTER_ANSWER_PROPERTY = "point-booster-answer";
-
     public static final String TOSS_POINTS_PROPERTY = "toss-points";
     public static final String MATCH_WINNER_POINTS_PROPERTY = "match-winner-points";
     public static final String RUN_RANGE_POINTS_PROPERTY = "run-range-points";
     public static final String WICKET_RANGE_POINTS_PROPERTY = "wicket-range-points";
     public static final String POINT_BOOSTER_POINTS_PROPERTY = "point-booster-points";
-    public static final String ROULETTE_POINTS_PROPERTY = "roulette-points";
+    public static final String CSV_INPUT_PROPERTY = "csv-input";
+    public static final String BONUS_ANSWER_PROPERTY = "csv-input";
+    public static final String BONUS_POINT_PROPERTY = "csv-input";
 
     /* Request Params */
     public static final String API_KEY_PARAM = "apikey";

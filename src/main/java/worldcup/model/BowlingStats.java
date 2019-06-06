@@ -27,6 +27,7 @@ public class BowlingStats implements Stats {
     private double economyRate;
     @JsonAlias("0s")
     private int dots;
+    private boolean fourWicketHaul;
     private boolean fiveWicketHaul;
 
     @Override
@@ -89,7 +90,9 @@ public class BowlingStats implements Stats {
 
     public void setWickets(String wickets) {
         this.wickets = wickets;
-        if(Integer.parseInt(wickets) >= 5){
+        if(Integer.parseInt(wickets) == 4){
+            setFourWicketHaul(true);
+        } else if(Integer.parseInt(wickets) >= 5){
             setFiveWicketHaul(true);
         }
     }
@@ -108,6 +111,14 @@ public class BowlingStats implements Stats {
 
     public void setDots(int dots) {
         this.dots = dots;
+    }
+
+    public boolean isFourWicketHaul() {
+        return fourWicketHaul;
+    }
+
+    public void setFourWicketHaul(boolean fourWicketHaul) {
+        this.fourWicketHaul = fourWicketHaul;
     }
 
     public boolean isFiveWicketHaul() {

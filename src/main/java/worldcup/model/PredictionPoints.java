@@ -20,6 +20,7 @@ public class PredictionPoints {
     private int wicketRangePoints;
     private int pointBoosterPoints;
     private int roulettePoints;
+    private int bonusPoints;
 
     public PredictionPoints() {
     }
@@ -99,5 +100,13 @@ public class PredictionPoints {
 
     public void setRoulettePoints(int roulettePoints) {
         this.roulettePoints = roulettePoints;
+    }
+
+    public int getBonusPoints() {
+        return bonusPoints;
+    }
+
+    public void setBonusPoints(int bonusPoints) {
+        this.bonusPoints = bonusPoints;
     }
 }

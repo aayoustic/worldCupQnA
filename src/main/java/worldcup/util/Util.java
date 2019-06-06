@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import worldcup.constant.WorldCupConstant;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -19,6 +20,9 @@ import java.util.Map;
 public class Util {
     @Autowired private ObjectMapper objectMapper;
 
+    public enum BONUS_PROPERTY{
+        point, answer
+    }
     public void appendURLParam(StringBuilder url, Map<String, String> params) {
         for (String key : params.keySet()) {
             appendURLParam(url, key, params.get(key));
@@ -91,4 +95,8 @@ public class Util {
         }
     }
 
+    public String getBonusQuestionProperty(Integer bonusQuestionNumber, BONUS_PROPERTY bonusProperty){
+        String bonus = "bonus";
+        return bonus + bonusQuestionNumber + WorldCupConstant.HYPHEN + bonusProperty.name();
+    }
 }

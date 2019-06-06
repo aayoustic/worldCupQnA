@@ -21,6 +21,7 @@ public class TeamStatsPoints {
     private Long centuriesPoint;
     private Long wicketPoint;
     private Long maidensPoint;
+    private Long fourWicketHaulPoint;
     private Long fiveWicketHaulPoint;
     private Long catchesPoint;
     private Long stumpingsPoint;
@@ -103,6 +104,14 @@ public class TeamStatsPoints {
 
     public void setMaidensPoint(Long maidensPoint) {
         this.maidensPoint = maidensPoint;
+    }
+
+    public Long getFourWicketHaulPoint() {
+        return fourWicketHaulPoint;
+    }
+
+    public void setFourWicketHaulPoint(Long fourWicketHaulPoint) {
+        this.fourWicketHaulPoint = fourWicketHaulPoint;
     }
 
     public Long getFiveWicketHaulPoint() {

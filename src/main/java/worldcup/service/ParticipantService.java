@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import worldcup.constant.WorldCupConstant;
 import worldcup.dao.*;
 import worldcup.model.*;
+import worldcup.util.Util;
 import worldcup.util.WorldCupPropertyUtil;
 
 import java.io.BufferedReader;
@@ -16,7 +17,7 @@ import java.util.*;
 
 @Service
 public class ParticipantService {
-    private static final int TOTAL_COLUMNS = 21;
+    private static final int TOTAL_COLUMNS = 22;
     private static final int EMAIL_COLUMN = 1;
     private static final int TOSS_COLUMN = 2;
     private static final int MATCH_WINNER_COLUMN = 3;
@@ -25,16 +26,15 @@ public class ParticipantService {
     private static final int POINT_BOOSTER_COLUMN = 6;
     private static final int ROULETTE_COLUMN_START = 7;
     private static final int ROULETTE_COLUMN_END = 15;
-    private static final int BATTING_CHOICE_COLUMN_START = 15;
-    private static final int BATTING_CHOICE_COLUMN_END = 18;
-    private static final int BOWLING_CHOICE_COLUMN_START = 18;
-    private static final int BOWLING_CHOICE_COLUMN_END = 21;
+    private static final int BATTING_CHOICE_COLUMN = 15;
+    private static final int BOWLING_CHOICE_COLUMN = 16;
+    private static final int PLAYER_CHOICE_COLUMN_START = 15;
+    private static final int PLAYER_CHOICE_COLUMN_END = 21;
+    private static final int BONUS_COLUMN_START = 21;
     private static final String BOWLING_ROULETTE = "Bowling Roulette";
     public enum ROULETTE_TYPE{
         BATTING, BOWLING
     }
-
-    private static final String INPUT_PREDICTION_FILE_NAME = "input/Match1-ENGvSA.csv";
 
     @Autowired
     private ParticipantRepository participantRepository;
@@ -63,13 +63,15 @@ public class ParticipantService {
 
     @Autowired
     private PredictionService predictionService;
+    @Autowired
+    private Util util;
 
     public void calculatePoints(Long matchId) {
         String line;
         boolean isTitleRow = true;
         ROULETTE_TYPE rouletteType = ROULETTE_TYPE.BATTING;
         String pointBoosterAnswer = WorldCupPropertyUtil.getInstance().getProperty(WorldCupConstant.POINT_BOOSTER_ANSWER_PROPERTY);
-        try (BufferedReader br = new BufferedReader(new FileReader(WorldCupConstant.CSV_PATH + INPUT_PREDICTION_FILE_NAME))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(WorldCupPropertyUtil.getInstance().getProperty(WorldCupConstant.CSV_INPUT_PROPERTY)))) {
             while ((line = br.readLine()) != null) {
                 String[] row = line.split(WorldCupConstant.COMMA_DELIMITER);
                 if (isTitleRow) {
@@ -105,22 +107,31 @@ public class ParticipantService {
                         predictionPoints.setWicketRangePoints(
                                 Integer.parseInt(WorldCupPropertyUtil.getInstance().getProperty(WorldCupConstant.WICKET_RANGE_POINTS_PROPERTY)));
                     }
-                    if(StringUtils.isNotBlank(pointBoosterAnswer) && pointBoosterAnswer.equalsIgnoreCase(row[POINT_BOOSTER_COLUMN])){
+                    if(StringUtils.isNotBlank(pointBoosterAnswer) && pointBoosterAnswer.equals(row[POINT_BOOSTER_COLUMN])){
                         predictionPoints.setPointBoosterPoints(
                                 Integer.parseInt(WorldCupPropertyUtil.getInstance().getProperty(WorldCupConstant.POINT_BOOSTER_POINTS_PROPERTY)));
                     }
                     String[] roulette = Arrays.copyOfRange(row, ROULETTE_COLUMN_START, ROULETTE_COLUMN_END);
-                    predictionService.calculateRoulettePoints(predictionPoints, rouletteType, roulette,match);
-                    predictionPointsRepository.save(predictionPoints);
+                    predictionPoints.setRoulettePoints(predictionService.calculateRoulettePoints(rouletteType, roulette,match));
 
-                    String[] battingChoice = Arrays.copyOfRange(row, BATTING_CHOICE_COLUMN_START, BATTING_CHOICE_COLUMN_END);
-                    calculateOwnBattingStats(battingChoice[0], participant, match);
+                    calculateOwnBattingStats(row[BATTING_CHOICE_COLUMN], participant, match);
+                    calculateOwnBowlingStats(row[BOWLING_CHOICE_COLUMN], participant, match);
 
-                    String[] bowlingChoice = Arrays.copyOfRange(row, BOWLING_CHOICE_COLUMN_START, BOWLING_CHOICE_COLUMN_END);
-                    calculateOwnBowlingStats(bowlingChoice[0], participant, match);
+                    String[] players = Arrays.copyOfRange(row, PLAYER_CHOICE_COLUMN_START, PLAYER_CHOICE_COLUMN_END);
 
-                    String[] players = ArrayUtils.addAll(bowlingChoice, battingChoice);
                     calculateTeamStats(players, participant, match);
+
+                    int totalBonusPoints = 0;
+                    for(int i=BONUS_COLUMN_START,bonusQuestion=1; i<row.length;i++,bonusQuestion++){
+                        String bonusAnswerProperty = util.getBonusQuestionProperty(bonusQuestion, Util.BONUS_PROPERTY.answer);
+                        String bonusPrediction = row[i];
+                        if(StringUtils.isNotBlank(bonusPrediction) && bonusPrediction.equals(WorldCupPropertyUtil.getInstance().getProperty(bonusAnswerProperty))){
+                            String bonusPointProperty = util.getBonusQuestionProperty(bonusQuestion, Util.BONUS_PROPERTY.point);
+                            totalBonusPoints += Integer.parseInt(WorldCupPropertyUtil.getInstance().getProperty(bonusPointProperty));
+                        }
+                    }
+                    predictionPoints.setBonusPoints(totalBonusPoints);
+                    predictionPointsRepository.save(predictionPoints);
                 }
             }
         } catch (IOException e) {
@@ -129,7 +140,8 @@ public class ParticipantService {
     }
 
     private void calculateTeamStats(String[] choices, Participant participant, Match match) {
-        for (String choice : choices) {
+        Set<String> uniqueChoices = new HashSet<>(Arrays.asList(choices)); // remove redundant choices
+        for (String choice : uniqueChoices) {
             Optional<Player> player = playerRepository.findByName(choice);
             if(player.isPresent()) {
                 TeamStats teamStats = new TeamStats();
@@ -208,6 +220,7 @@ public class ParticipantService {
                 teamStatsPoints.setCenturiesPoint(Long.parseLong(teamStat[columnCount++].toString()) * 10);
                 teamStatsPoints.setWicketPoint(Long.parseLong(teamStat[columnCount++].toString()) * 24);
                 teamStatsPoints.setMaidensPoint(Long.parseLong(teamStat[columnCount++].toString()) * 3);
+                teamStatsPoints.setFourWicketHaulPoint(Long.parseLong(teamStat[columnCount++].toString()) * 5);
                 teamStatsPoints.setFiveWicketHaulPoint(Long.parseLong(teamStat[columnCount++].toString()) * 10);
                 teamStatsPoints.setCatchesPoint(Long.parseLong(teamStat[columnCount++].toString()) * 4);
                 teamStatsPoints.setStumpingsPoint(Long.parseLong(teamStat[columnCount].toString()) * 4);
