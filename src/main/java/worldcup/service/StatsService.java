@@ -1,6 +1,5 @@
 package worldcup.service;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +41,7 @@ public class StatsService {
     public void loadBattingStats(JSONObject playerJSON, Match match, Player player){
         BattingStats battingStats = util.getModelFromJson(playerJSON, BattingStats.class);
         setMatchAndPlayer(battingStats, match, player);
-        if(playerJSON.getString(WorldCupConstant.DISMISSAL_KEY).equalsIgnoreCase(WorldCupConstant.NOT_OUT)){
+        if(!playerJSON.isNull(WorldCupConstant.DISMISSAL_KEY) && playerJSON.getString(WorldCupConstant.DISMISSAL_KEY).equalsIgnoreCase(WorldCupConstant.NOT_OUT)){
             battingStats.setNotOut(true);
         } else {
             battingStats.setNotOut(false);
