@@ -1,6 +1,5 @@
 package worldcup.service;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,9 @@ import java.util.*;
 
 @Service
 public class ParticipantService {
-    private static final int TOTAL_COLUMNS = 22;
+    private static final int CHANGE_COLUMN = 2;
+    private static final int TOTAL_COLUMNS = 22 - CHANGE_COLUMN;
+
     private static final int EMAIL_COLUMN = 1;
     private static final int TOSS_COLUMN = 2;
     private static final int MATCH_WINNER_COLUMN = 3;
@@ -25,12 +26,12 @@ public class ParticipantService {
     private static final int WICKET_RANGE_COLUMN = 5;
     private static final int POINT_BOOSTER_COLUMN = 6;
     private static final int ROULETTE_COLUMN_START = 7;
-    private static final int ROULETTE_COLUMN_END = 15;
-    private static final int BATTING_CHOICE_COLUMN = 15;
-    private static final int BOWLING_CHOICE_COLUMN = 16;
-    private static final int PLAYER_CHOICE_COLUMN_START = 15;
-    private static final int PLAYER_CHOICE_COLUMN_END = 21;
-    private static final int BONUS_COLUMN_START = 21;
+    private static final int ROULETTE_COLUMN_END = 15 - CHANGE_COLUMN;
+    private static final int BATTING_CHOICE_COLUMN = 15 - CHANGE_COLUMN;
+    private static final int BOWLING_CHOICE_COLUMN = 16 - CHANGE_COLUMN;
+    private static final int PLAYER_CHOICE_COLUMN_START = 15 - CHANGE_COLUMN;
+    private static final int PLAYER_CHOICE_COLUMN_END = 21 - CHANGE_COLUMN;
+    private static final int BONUS_COLUMN_START = 21 - CHANGE_COLUMN;
     private static final String BOWLING_ROULETTE = "Bowling Roulette";
     public enum ROULETTE_TYPE{
         BATTING, BOWLING

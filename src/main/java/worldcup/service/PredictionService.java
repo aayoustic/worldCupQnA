@@ -1,16 +1,13 @@
 package worldcup.service;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import worldcup.constant.WorldCupConstant;
-import worldcup.cricketData.CricketInfo;
 import worldcup.dao.BattingStatsRepository;
 import worldcup.dao.BowlingStatsRepository;
 import worldcup.model.BattingStats;
 import worldcup.model.BowlingStats;
 import worldcup.model.Match;
-import worldcup.model.PredictionPoints;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +15,6 @@ import java.util.List;
 @Service
 public class PredictionService {
 
-    @Autowired private CricketInfo<JSONObject> cricketInfo;
     @Autowired private BattingStatsRepository battingStatsRepository;
     @Autowired private BowlingStatsRepository bowlingStatsRepository;
 
@@ -99,14 +95,16 @@ public class PredictionService {
     }
 
     private int calculateRoulettePoints(int correctAnswers){
-        int points = 0;
-        if(correctAnswers <= 1){
-            points = -5;
-        } else if(correctAnswers >= 3 && correctAnswers <= 5){
+        int points = 0; // if correct answers are 1 or 2.
+        if(correctAnswers == 0){
+            points = -10;
+        } else if(correctAnswers == 3){
+            points = 3;
+        } else if(correctAnswers == 4){
             points = 5;
-        } else if(correctAnswers >= 6 && correctAnswers <= 7){
+        } else if(correctAnswers == 5){
             points = 10;
-        } else if(correctAnswers == 8){
+        } else if(correctAnswers == 6){
             points = 20;
         }
         return points;
